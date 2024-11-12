@@ -8,7 +8,7 @@ import queue
 app = Flask(__name__)
 
 # Replace with your actual Gemini API key
-GEMINI_API_KEY = 'AIzaSyDxyGj1rtHHqp3YkDpQFn4YVg9e_2V0T8s'
+GEMINI_API_KEY = ""
 
 # Initialize the text-to-speech engine and queue
 engine = pyttsx3.init()
