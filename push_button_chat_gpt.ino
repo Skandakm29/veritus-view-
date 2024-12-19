@@ -5,7 +5,7 @@ const char* ssid = "";
 const char* password = "";
 
 // Replace with your Flask server's IP address and port
-String serverUrl = "http://192.168.51.217:5000/trigger";
+String serverUrl = "http://192.168.51.xxx:5000/trigger";
 
 // Microphone pin (adjust according to your wiring)
 int micPin = 34;  // Example for analog microphone input
