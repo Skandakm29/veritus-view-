@@ -4,28 +4,30 @@ Veritus View is an innovative smart glasses project that leverages ESP32-CAM and
 
 🌟 Features
 Live Streaming: Real-time video streaming via the ESP32-CAM module.
+
 Edge Processing: On-device computation for tasks like object detection and recognition.
+
 IoT Connectivity: Seamless integration with cloud platforms and mobile devices.
+
 Lightweight Design: Optimized hardware for a compact and wearable form factor.
 
 
 🚀Getting Started
+
 Hardware Requirements
+
 ESP32-CAM Module
+
 ESP32 Development Board
+
 Battery Pack (Li-Po or similar)
-Custom PCB (optional for advanced integration)
-Supporting peripherals (buttons, microphone, speaker, etc.)
+
 Software Requirements
+
 Arduino IDE or PlatformIO
+
 ESP32 Board Manager installed
 
-
-Libraries:
-WiFi
-ESP32-CAM
-FirebaseESP32 (for cloud integration)
-OpenCV (optional for image processing on the cloud)
 
 Contact
 Feel free to reach out for any queries or suggestions:
