@@ -1,5 +1,3 @@
-Veritus View: Smart Glasses Project
-
 Veritus View is an innovative smart glasses project that leverages ESP32-CAM and ESP32 microcontrollers to enhance user experience with real-time visual and computational capabilities.
 
 🌟 Features
@@ -33,4 +31,6 @@ Contact
 Feel free to reach out for any queries or suggestions:
 
 Email: skandakm17@gmail.com
+
+Linkedln:https://www.linkedin.com/in/k-m-skanda-541a02291/
 
