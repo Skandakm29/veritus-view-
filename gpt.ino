@@ -2,11 +2,11 @@
 #include <HTTPClient.h>
 
 // Replace with your WiFi credentials
-const char* ssid = "SKANDA";
-const char* password = "skandakm";
+const char* ssid = "";
+const char* password = "";
 
 // Server URL
-String serverURL = "http://192.168.51.217:5000/process-audio";  // Replace with your server IP and port
+String serverURL = "http://192.168.51.xxx:5000/process-audio";  // Replace with your server IP and port
 
 // Microphone pin
 const int micPin = 34;  // GPIO pin connected to the microphone
