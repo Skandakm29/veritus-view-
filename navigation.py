@@ -7,7 +7,7 @@ import pyttsx3
 app = Flask(__name__)
 
 # Set your Gemini API key here
-GEMINI_API_KEY = 'AIzaSyDxyGj1rtHHqp3YkDpQFn4YVg9e_2V0T8s'  # Replace with your actual Gemini API key
+GEMINI_API_KEY = ''  # Replace with your actual Gemini API key
 
 # Initialize the text-to-speech engine
 engine = pyttsx3.init()
