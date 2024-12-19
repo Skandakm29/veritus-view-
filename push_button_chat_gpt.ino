@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "SKANDA";
-const char* password = "skandakm";
+const char* ssid = "";
+const char* password = "";
 
 // Replace with your Flask server's IP address and port
 String serverUrl = "http://192.168.51.217:5000/trigger";
