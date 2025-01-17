@@ -1,71 +1,90 @@
-import os
 import cv2
-import easyocr
+from paddleocr import PaddleOCR
 from gtts import gTTS
-import playsound
-import streamlit as st
+import pygame
+import os
+import numpy as np
 
-# Function to capture an image and perform OCR
-def capture_image_and_perform_ocr():
-    # Set up directories to save captured images and audio
-    os.makedirs('captured_images', exist_ok=True)
+# Initialize PaddleOCR for English
+ocr_english = PaddleOCR(use_angle_cls=True, lang='en', drop_score=0.7)  # English OCR with high accuracy filtering
+esp_32="http://192.168.13.161:81/stream"
+# Initialize video capture
+cap = cv2.VideoCapture(esp_32)
 
-    # Initialize EasyOCR reader
-    reader = easyocr.Reader(['en'])
+if not cap.isOpened():
+    print("Error: Could not open video stream.")
+    exit()
 
-    st.write("This feature captures an image, performs OCR, and reads the text aloud.")
+# Initialize pygame mixer
+pygame.mixer.init()
 
-    # Button to capture an image
-    if st.button('Capture Image'):
-        # Initialize video capture
-        cap = cv2.VideoCapture(0)  # Replace with your camera ID if needed
+print("Press 'q' to quit the application.")
 
-        if not cap.isOpened():
-            st.error("Error: Could not open video stream.")
-        else:
-            # Capture an image from the webcam
-            ret, frame = cap.read()
+frame_counter = 0  # To manage frame skipping for real-time performance
+while True:
+    # Read a frame from the camera
+    ret, frame = cap.read()
+    if not ret:
+        print("Error: Failed to capture frame.")
+        break
 
-            if not ret:
-                st.error("Error: Could not retrieve frame.")
-            else:
-                # Save the captured image
-                image_name = 'captured_images/captured_image.jpg'
-                cv2.imwrite(image_name, frame)
-                st.success(f"Image captured and saved: {image_name}")
+    # Convert the frame to grayscale for pre-processing
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-                # Display the captured image in Streamlit
-                st.image(image_name, caption='Captured Image', use_column_width=True)
+    # Apply CLAHE for better contrast
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    clahe_frame = clahe.apply(gray_frame)
 
-            # Release the video capture
-            cap.release()
+    # Adaptive thresholding with fine-tuned parameters
+    adaptive_thresh = cv2.adaptiveThreshold(
+        clahe_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 10
+    )
 
-    # Button to perform OCR on the captured image
-    if st.button('Extract Text from Image'):
-        image_name = 'captured_images/captured_image.jpg'
-        
-        if os.path.exists(image_name):
-            img = cv2.imread(image_name)
+    # Apply Morphological Transformations to remove noise and enhance text regions
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    adaptive_thresh = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel)
 
-            # Perform OCR to extract text
-            results = reader.readtext(img)
-            extracted_text = ' '.join([result[1] for result in results])
-            st.write("Extracted Text:")
-            st.write(extracted_text)
+    # Optional: Combine with Otsu's Binarization
+    _, otsu_thresh = cv2.threshold(clahe_frame, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    combined_thresh = cv2.bitwise_or(adaptive_thresh, otsu_thresh)
 
-            # Convert extracted text to speech and play the audio
-            if extracted_text.strip():
-                tts = gTTS(text=extracted_text, lang='en')
-                audio_file = 'captured_images/extracted_audio.mp3'
-                tts.save(audio_file)
-                st.success(f"Audio saved: {audio_file}")
+    # Convert the original frame to RGB (PaddleOCR requires RGB input)
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                try:
-                    playsound.playsound(audio_file)
-                    st.success("Playing extracted text as audio.")
-                except Exception as e:
-                    st.error(f"Error playing audio: {e}")
-            else:
-                st.warning("No text extracted from the image.")
-        else:
-            st.error("No captured image found. Please capture an image first.")
+    # Skip frames to optimize performance
+    if frame_counter % 5 == 0:  # Process every 5th frame
+        # Perform OCR for English
+        results_english = ocr_english.ocr(rgb_frame, cls=True)
+
+        # Process detected English text
+        if results_english and results_english[0]:
+            extracted_text_en = ' '.join([result[1][0] for result in results_english[0]])
+            print("Detected English Text:", extracted_text_en)
+
+            # Convert English text to speech
+            if extracted_text_en.strip():
+                tts = gTTS(text=extracted_text_en, lang='en')
+                audio_file_en = "temp_audio_en.mp3"
+                tts.save(audio_file_en)
+
+                pygame.mixer.music.load(audio_file_en)
+                pygame.mixer.music.play()
+
+                while pygame.mixer.music.get_busy():
+                    continue
+
+                if os.path.exists(audio_file_en):
+                    os.remove(audio_file_en)
+
+    # Display the processed video feed
+    cv2.imshow("Live Camera Feed - Press 'q' to Quit", combined_thresh)
+
+    frame_counter += 1
+
+    # Quit on 'q' key press
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release the camera and close OpenCV windows
+cap.release()
+cv2.destroyAllWindows()
