@@ -7,7 +7,7 @@ import numpy as np
 
 # Initialize PaddleOCR for English
 ocr_english = PaddleOCR(use_angle_cls=True, lang='en', drop_score=0.7)  # English OCR with high accuracy filtering
-esp_32="http://192.168.13.161:81/stream"
+esp_32="http://192.xxx.13.xxx:81/stream"#enter your esp32 url adresss here 
 # Initialize video capture
 cap = cv2.VideoCapture(esp_32)
 
